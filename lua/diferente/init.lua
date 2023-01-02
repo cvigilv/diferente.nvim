@@ -1,7 +1,7 @@
--- Different {{{
+local M = {}
 
 --- Create split where commit's diff will be shown
-local function create_split(commit_win, ratio)
+local create_split = function(commit_win, ratio)
   -- Get orientation and size of splitting
   local width = vim.api.nvim_win_get_width(commit_win)
   local height = vim.api.nvim_win_get_height(commit_win)
@@ -31,7 +31,7 @@ local function create_split(commit_win, ratio)
 end
 
 --- Create `gitdiff` buffer
-local function get_diff()
+local get_diff = function()
   -- Create `gitdiff` buffer and temporally place it in a window
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_get_current_buf()
@@ -39,7 +39,7 @@ local function get_diff()
   vim.api.nvim_win_set_buf(win, diff_buf)
 
   -- Configure `gitdiff` buffer
-  vim.api.nvim_buf_set_name(diff_buf, "different :: diff")
+  vim.api.nvim_buf_set_name(diff_buf, "diferente :: diff")
   vim.bo.syntax = "diff"
   vim.bo.buftype = "nofile"
   vim.wo.number = false
@@ -48,8 +48,8 @@ local function get_diff()
 
   -- Add and clean-up information to buffer
   vim.api.nvim_command("r!git diff -u --cached --no-color --no-ext-diff")
-  vim.api.nvim_command([[g/^  (use "git.*/d]])
-  vim.api.nvim_command([[g/^$/d]])
+  pcall(vim.api.nvim_command, [[g/^  (use "git.*/d]])
+  pcall(vim.api.nvim_command, [[g/^$/d]])
   vim.api.nvim_win_set_cursor(win, { 1, 0 })
   vim.api.nvim_del_current_line()
   vim.bo.modifiable = false
@@ -61,7 +61,7 @@ local function get_diff()
 end
 
 --- Create `gitstatus` buffer
-local function get_status()
+local get_status = function()
   -- Create `gitstatus` buffer and temporally place it in a window
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_get_current_buf()
@@ -69,7 +69,7 @@ local function get_status()
   vim.api.nvim_win_set_buf(win, status_buf)
 
   -- Configure `gitstatus` buffer
-  vim.api.nvim_buf_set_name(status_buf, "different :: status")
+  vim.api.nvim_buf_set_name(status_buf, "diferente :: status")
   vim.bo.syntax = "gitstatus"
   vim.bo.buftype = "nofile"
   vim.wo.number = false
@@ -91,10 +91,7 @@ local function get_status()
 end
 
 --- Create `gitlog` buffer
--- TODO(Carlos): Long description
--- @param diff_win ???: `gitdiff` window number
--- @return ???:
-local function get_log()
+local get_log = function()
   -- Create `gitstatus` buffer and temporally place it in a window
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_get_current_buf()
@@ -102,7 +99,7 @@ local function get_log()
   vim.api.nvim_win_set_buf(win, log_buf)
 
   -- Configure `gitstatus` buffer
-  vim.api.nvim_buf_set_name(log_buf, "different :: log")
+  vim.api.nvim_buf_set_name(log_buf, "diferente :: log")
   vim.bo.syntax = "gitlog"
   vim.bo.buftype = "nofile"
   vim.wo.number = false
@@ -121,9 +118,10 @@ local function get_log()
   return log_buf
 end
 
-local function different()
+local Diferente = function(opts)
   -- Constants
-  local ratio = 0.3
+  local ratio = opts.ratio
+  local preference = opts.preference
   local commit_win = vim.api.nvim_get_current_win()
   local commit_buf = vim.api.nvim_get_current_buf()
 
@@ -134,67 +132,107 @@ local function different()
   local diff_buf = get_diff()
   local status_buf = get_status()
   local log_buf = get_log()
+  local git_buffers = {
+    diff = diff_buf,
+    status = status_buf,
+    log = log_buf,
+  }
   vim.api.nvim_set_current_win(diff_win)
-  vim.api.nvim_win_set_buf(diff_win, diff_buf)
+  vim.api.nvim_win_set_buf(diff_win, git_buffers[preference])
 
   -- Create user commands
-  local commands = {
-    DifferentCommit = commit_buf,
-    DifferentDiff = diff_buf,
-    DifferentStatus = status_buf,
-    DifferentLog = log_buf,
-  }
-  for name, buf in pairs(commands) do
-    vim.api.nvim_create_user_command(
-      name,
-      function() vim.api.nvim_win_set_buf(0, buf) end,
-      {}
-    )
+  if opts.create_ex_commands then
+    print("diferente.nvim :: Ex-commands created!")
+    local commands = {
+      DiferenteDiff = diff_buf,
+      DiferenteStatus = status_buf,
+      DiferenteLog = log_buf,
+    }
+    for name, buf in pairs(commands) do
+      vim.api.nvim_create_user_command(
+        name,
+        function() vim.api.nvim_win_set_buf(0, buf) end,
+        {}
+      )
+    end
   end
 
-  local different_cycle = {
-    diff_buf,
-    status_buf,
-    log_buf,
-  }
-  local cycle_id = 1
+  if opts.create_keymaps then
+    print("diferente.nvim :: Keymaps created!")
+     M.diferente_cycle = {
+      diff_buf,
+      status_buf,
+      log_buf,
+    }
+    M.cycle_id = 1
 
-  vim.api.nvim_set_keymap(
-    "n", "<S-Tab>", "", {
+    vim.api.nvim_set_keymap(
+      "n", "<S-Tab>", "", {
       noremap = true,
-        callback = function()
-        -- get `different` command to run
-        local different_buf = different_cycle[cycle_id]
+      callback = function()
+        -- get `diferente` command to run
+        local diferente_buf = M.diferente_cycle[M.cycle_id]
 
         -- cycle picker
-        cycle_id = cycle_id + 1
-        if cycle_id > 3 then
-          cycle_id = 1
+        M.cycle_id = M.cycle_id + 1
+        if M.cycle_id > 3 then
+          M.cycle_id = 1
         end
 
-        -- run `different` command
-        vim.api.nvim_win_set_buf(diff_win, different_buf)
+        -- run `diferente` command
+        vim.api.nvim_win_set_buf(diff_win, diferente_buf)
 
       end,
-      desc = 'Cycle through Different modes'
+      desc = 'Cycle through Diferente modes'
     }
-  )
+    )
+  end
 end
 
-vim.api.nvim_create_autocmd(
-  { "BufWinEnter" },
-  {
-    pattern = { "COMMIT_EDITMSG", "MERGE_MSG" },
-    callback = different,
-  }
-)
 
--- Close `different.nvim` windows if this are the last ones open
-vim.api.nvim_create_autocmd(
-  { "BufEnter" },
-  {
-    pattern = { "different :: diff", "different :: status", "different :: log" },
-    command = 'if (winnr("$") == 1) | q | endif'
-  }
-)
--- }}}
+
+M._defaults = {
+  ratio = 0.3, -- between 0 and 1
+  preference = "diff", -- Can be any of "diff", "log", "status"
+  create_ex_commands = true, -- creates "Diferente*" ex-commands
+  create_keymaps = true, -- Sets <S-Tab> for fast switching between information
+}
+
+M.setup = function(opts)
+  -- update defaults
+  if opts ~= nil then
+    for key, value in pairs(opts) do
+      M._defaults[key] = value
+    end
+  end
+
+  -- create autocommands for skeleton insertion
+  local group = vim.api.nvim_create_augroup(
+    "diferente",
+    { clear = true }
+  )
+
+  vim.api.nvim_create_autocmd(
+    { "BufWinEnter" },
+    {
+      group = group,
+      desc = "Open UI",
+      pattern = { "COMMIT_EDITMSG", "MERGE_MSG" },
+      callback = function() Diferente(M._defaults) end
+    }
+  )
+
+  -- Close `diferente.nvim` windows if this are the last ones open
+  vim.api.nvim_create_autocmd(
+    { "BufEnter" },
+    {
+      group = group,
+      desc = "Automatically close UI when quitting",
+      pattern = { "diferente :: diff", "diferente :: status", "diferente :: log" },
+      command = 'if (winnr("$") == 1) | q | endif'
+    }
+  )
+
+end
+
+return M
