@@ -189,8 +189,6 @@ local Diferente = function(opts)
   end
 end
 
-
-
 M._defaults = {
   ratio = 0.3, -- between 0 and 1
   preference = "diff", -- Can be any of "diff", "log", "status"
