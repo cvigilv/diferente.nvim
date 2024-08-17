@@ -92,11 +92,13 @@ local get_log = function()
 	return log_buf
 end
 
+---@param opts Diferente.Config
 local Diferente = function(opts)
 	-- Constants
 	local ratio = opts.ratio
 	local preference = opts.preference
 	local commit_win = vim.api.nvim_get_current_win()
+	local commit_winid = vim.fn.win_getid()
 
 	-- Create splits
 	local diff_win = ui.create_split(commit_win, ratio)
@@ -155,35 +157,17 @@ local Diferente = function(opts)
 			desc = "Cycle through Diferente modes",
 		})
 	end
-end
 
-local function close_diferente_buffers_and_windows()
-	local buffers_to_close = {}
-
-	-- Iterate through all buffers
-	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-		local name = vim.api.nvim_buf_get_name(buf)
-		if vim.startswith(vim.fn.fnamemodify(name, ":t"), "diferente::") then
-			table.insert(buffers_to_close, buf)
-		end
-	end
-
-	-- Close windows associated with the prefixed buffers
-	for _, win in ipairs(vim.api.nvim_list_wins()) do
-		local buf = vim.api.nvim_win_get_buf(win)
-		if vim.tbl_contains(buffers_to_close, buf) then
-			vim.api.nvim_win_close(win, false)
-		end
-	end
-
-	-- Close the prefixed buffers
-	for _, buf in ipairs(buffers_to_close) do
-		if vim.api.nvim_buf_is_valid(buf) then
-			vim.api.nvim_buf_delete(buf, { force = true })
-		end
-	end
-
-	print("Closed buffers and windows prefixed with 'diferente::'")
+	-- HACK: this will close everything, without saving, if the COMMIT_EDITMSG/MERGE_MSG buffer
+	-- is closed. This could be improved by adding a checker to see if the open buffers are only
+	-- related to diferente.nvim
+	vim.api.nvim_create_autocmd("WinClosed", {
+		pattern = tostring(commit_winid),
+		group = vim.api.nvim_create_augroup("diferente", { clear = false }),
+		callback = function()
+			vim.cmd("quitall!")
+		end,
+	})
 end
 
 M = {}
@@ -198,14 +182,6 @@ M.init = function(opts)
 		callback = function()
 			Diferente(opts)
 		end,
-	})
-
-	-- Close `diferente.nvim` windows if this are the last ones open
-	vim.api.nvim_create_autocmd({ "BufEnter" }, {
-		group = group,
-		desc = "Automatically close UI when quitting",
-		pattern = { "diferente :: diff", "diferente :: status", "diferente :: log" },
-		command = 'if (winnr("$") == 1) | q | endif',
 	})
 end
 
