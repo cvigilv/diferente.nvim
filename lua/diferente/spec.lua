@@ -116,8 +116,8 @@ local Diferente = function(opts)
 	vim.api.nvim_win_set_buf(diff_win, git_buffers[preference])
 
 	-- Create user commands
-	if opts.create_ex_commands then
-		print("diferente.nvim :: Ex-commands created!")
+	if opts.create_excmds then
+		vim.notify("[diferente.nvim] Created excommands.", vim.log.levels.DEBUG)
 		local commands = {
 			DiferenteDiff = diff_buf,
 			DiferenteStatus = status_buf,
@@ -130,8 +130,8 @@ local Diferente = function(opts)
 		end
 	end
 
-	if opts.create_keymaps then
-		print("diferente.nvim :: Keymaps created!")
+	if opts.setup_keymaps then
+		vim.notify("[diferente.nvim] Setup keymaps.", vim.log.levels.DEBUG)
 		M.diferente_cycle = {
 			diff_buf,
 			status_buf,
