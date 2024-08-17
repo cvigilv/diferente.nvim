@@ -191,6 +191,7 @@ local Diferente = function(opts)
 			end
 
 			-- Wipeout/Delete diferente-related buffers
+			-- NOTE: This process order is intended as `quitall!` should run fist 99% of times.
 			-- HACK: This is a little hacky since I use the bufname and not bufnr for deletion via
 			-- `vim.cmd`. Investigate a way to improve this chunk of code so it uses only Neovim API.
 			vim.tbl_map(function(value)
