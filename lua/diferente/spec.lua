@@ -22,8 +22,6 @@ local get_diff = function()
 
 	-- Add and clean-up information to buffer
 	vim.api.nvim_command("r!git diff -u --cached --no-color --no-ext-diff")
-	pcall(vim.api.nvim_command, [[g/^  (use "git.*/d]])
-	pcall(vim.api.nvim_command, [[g/^$/d]])
 	vim.api.nvim_win_set_cursor(win, { 1, 0 })
 	vim.api.nvim_del_current_line()
 	vim.bo.modifiable = false
@@ -52,8 +50,6 @@ local get_status = function()
 
 	-- Add and clean-up information to buffer
 	vim.api.nvim_command("r!git -c color.status=false status -b")
-	vim.api.nvim_command([[g/^  (use "git.*/d]])
-	vim.api.nvim_command([[g/^$/d]])
 	vim.api.nvim_win_set_cursor(win, { 1, 0 })
 	vim.api.nvim_del_current_line()
 	vim.bo.modifiable = false
