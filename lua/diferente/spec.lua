@@ -19,6 +19,7 @@ local get_diff = function()
 	vim.wo.number = false
 	vim.wo.relativenumber = false
 	vim.wo.cursorline = false
+	vim.wo.foldlevel = 9999
 
 	-- Add and clean-up information to buffer
 	vim.api.nvim_command("r!git diff -u --cached --no-color --no-ext-diff")
