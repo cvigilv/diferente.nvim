@@ -13,7 +13,7 @@ local get_diff = function()
 	vim.api.nvim_win_set_buf(win, diff_buf)
 
 	-- Configure `gitdiff` buffer
-	vim.api.nvim_buf_set_name(diff_buf, "diferente :: diff")
+	vim.api.nvim_buf_set_name(diff_buf, "DiferenteDiff")
 	vim.bo.syntax = "diff"
 	vim.bo.buftype = "nofile"
 	vim.wo.number = false
@@ -43,7 +43,7 @@ local get_status = function()
 	vim.api.nvim_win_set_buf(win, status_buf)
 
 	-- Configure `gitstatus` buffer
-	vim.api.nvim_buf_set_name(status_buf, "diferente :: status")
+	vim.api.nvim_buf_set_name(status_buf, "DiferenteGitStatus")
 	vim.bo.syntax = "gitstatus"
 	vim.bo.buftype = "nofile"
 	vim.wo.number = false
@@ -73,7 +73,7 @@ local get_log = function()
 	vim.api.nvim_win_set_buf(win, log_buf)
 
 	-- Configure `gitstatus` buffer
-	vim.api.nvim_buf_set_name(log_buf, "diferente :: log")
+	vim.api.nvim_buf_set_name(log_buf, "DiferenteGitLog")
 	vim.bo.syntax = "gitlog"
 	vim.bo.buftype = "nofile"
 	vim.wo.number = false
@@ -158,14 +158,44 @@ local Diferente = function(opts)
 		})
 	end
 
-	-- HACK: this will close everything, without saving, if the COMMIT_EDITMSG/MERGE_MSG buffer
-	-- is closed. This could be improved by adding a checker to see if the open buffers are only
-	-- related to diferente.nvim
+	-- Automatically close everyting windows and buffers when quitting COMMIT_EDITMSG/MERGE_MSG buffer
+	-- NOTE: this won't close everything if a non-diferente buffer is available. This is intended.
 	vim.api.nvim_create_autocmd("WinClosed", {
 		pattern = tostring(commit_winid),
 		group = vim.api.nvim_create_augroup("diferente", { clear = false }),
-		callback = function()
-			vim.cmd("quitall!")
+		once = true,
+		callback = function(event)
+			-- Delete COMMIT_EDITMSG/MERGE_MSG buffer if not done by user
+			vim.api.nvim_buf_delete(event.buf, { force = true })
+
+			-- Get open buffers that have a name
+			local open_bufs = {}
+			for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+				local name = vim.api.nvim_buf_get_name(bufnr)
+				if name ~= "" then
+					table.insert(open_bufs, name)
+				end
+			end
+
+			-- Get expected diferente named buffers
+			local diferente_buffers = vim.tbl_map(function(value)
+				return vim.fn.getcwd() .. "/" .. value
+			end, { "DiferenteDiff", "DiferenteGitLog", "DiferenteGitStatus" })
+
+			-- Quit everything if open buffers are only related to diferente
+			table.sort(open_bufs)
+			table.sort(diferente_buffers)
+
+			if vim.deep_equal(open_bufs, diferente_buffers) then
+				vim.cmd("quitall!")
+			end
+
+			-- Wipeout/Delete diferente-related buffers
+			-- HACK: This is a little hacky since I use the bufname and not bufnr for deletion via
+			-- `vim.cmd`. Investigate a way to improve this chunk of code so it uses only Neovim API.
+			vim.tbl_map(function(value)
+				vim.cmd("bw " .. value)
+			end, { "DiferenteDiff", "DiferenteGitLog", "DiferenteGitStatus" })
 		end,
 	})
 end
