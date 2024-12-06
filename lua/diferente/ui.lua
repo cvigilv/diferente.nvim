@@ -22,15 +22,15 @@ function M.create_split(commit_win, ratio)
 
   -- Create split
   vim.cmd(split_func)
-  local diff_win = vim.api.nvim_get_current_win()
-  local diff_buf = vim.api.nvim_get_current_buf()
-  vim.api.nvim_win_set_buf(diff_win, diff_buf)
+  local diferente_win = vim.api.nvim_get_current_win()
+  local diferente_buf = vim.api.nvim_get_current_buf()
+  vim.api.nvim_win_set_buf(diferente_win, diferente_buf)
 
   -- Resize `gitcommit` window
   vim.api.nvim_set_current_win(commit_win)
   vim.api.nvim_command(resize_func)
 
-  return diff_win
+  return diferente_win
 end
 
 return M
