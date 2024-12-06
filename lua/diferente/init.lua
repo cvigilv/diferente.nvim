@@ -9,9 +9,9 @@ local M = {}
 --- Setup `diferente.nvim`
 ---@param opts Diferente.Config User configuration table
 function M.setup(opts)
-	-- Update defaults configuration
-	opts = config.update_config(opts)
-	require("diferente.spec").init(opts)
+  -- Update defaults configuration
+  opts = config.update_config(opts)
+  require("diferente.spec").init(opts)
 end
 
 return M

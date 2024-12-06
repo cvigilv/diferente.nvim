@@ -10,10 +10,10 @@
 
 ---@type Diferente.Config
 local defaults = {
-	ratio = 0.3,
-	preference = "diff",
-	create_excmds = true,
-	setup_keymaps = true,
+  ratio = 0.3,
+  preference = "diff",
+  create_excmds = true,
+  setup_keymaps = true,
 }
 
 M = {}
@@ -22,19 +22,19 @@ M = {}
 ---@param opts Diferente.Config user configuration table
 ---@return Diferente.Config
 M.update_config = function(opts)
-	vim.validate({ config = { opts, "table", true } })
+  vim.validate({ config = { opts, "table", true } })
 
-	opts = vim.tbl_deep_extend("force", defaults, opts or {})
+  opts = vim.tbl_deep_extend("force", defaults, opts or {})
 
-	-- Validate setup
-	vim.validate({
-		ratio = { opts.ratio, { "string", "number" } },
-		preference = { opts.preference, "string" },
-		create_excmds = { opts.create_excmds, "boolean" },
-		setup_keymaps = { opts.setup_keymaps, "boolean" },
-	})
+  -- Validate setup
+  vim.validate({
+    ratio = { opts.ratio, { "string", "number" } },
+    preference = { opts.preference, "string" },
+    create_excmds = { opts.create_excmds, "boolean" },
+    setup_keymaps = { opts.setup_keymaps, "boolean" },
+  })
 
-	return opts
+  return opts
 end
 
 return M
