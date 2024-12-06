@@ -2,7 +2,7 @@
 ---@author Carlos Vigil-Vasquez
 ---@license MIT
 
-M = {}
+local M = {}
 
 --- Create split where commit's diff will be shown
 function M.create_split(commit_win, ratio)

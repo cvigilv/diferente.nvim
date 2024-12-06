@@ -92,13 +92,11 @@ end
 ---@param opts Diferente.Config
 local Diferente = function(opts)
   -- Constants
-  local ratio = opts.ratio
-  local preference = opts.preference
   local commit_win = vim.api.nvim_get_current_win()
   local commit_winid = vim.fn.win_getid()
 
   -- Create splits
-  local diff_win = ui.create_split(commit_win, ratio)
+  local diff_win = ui.create_split(commit_win, opts.ratio)
 
   -- Create views
   local diff_buf = get_diff()
@@ -110,7 +108,7 @@ local Diferente = function(opts)
     log = log_buf,
   }
   vim.api.nvim_set_current_win(diff_win)
-  vim.api.nvim_win_set_buf(diff_win, git_buffers[preference])
+  vim.api.nvim_win_set_buf(diff_win, git_buffers[opts.preference])
 
   -- Create user commands
   if opts.create_excmds then
@@ -131,22 +129,22 @@ local Diferente = function(opts)
 
   if opts.setup_keymaps then
     vim.notify("[diferente.nvim] Setup keymaps.", vim.log.levels.DEBUG)
-    M.diferente_cycle = {
+    _G.diferente_cycle = {
       diff_buf,
       status_buf,
       log_buf,
     }
-    M.cycle_id = 1
+    _G.diferente_cycle_current = 1
 
     vim.api.nvim_set_keymap("n", "<S-Tab>", "", {
       noremap = true,
       callback = function()
         -- get `diferente` command to run
-        local diferente_buf = M.diferente_cycle[M.cycle_id]
+        local diferente_buf = _G.diferente_cycle[_G.diferente_cycle_current]
 
         -- cycle picker
-        M.cycle_id = M.cycle_id + 1
-        if M.cycle_id > 3 then M.cycle_id = 1 end
+        _G.diferente_cycle_current = _G.diferente_cycle_current + 1
+        if _G.diferente_cycle_current > 3 then _G.diferente_cycle_current = 1 end
 
         -- run `diferente` command
         vim.api.nvim_win_set_buf(diff_win, diferente_buf)
@@ -196,7 +194,7 @@ local Diferente = function(opts)
   })
 end
 
-M = {}
+local M = {}
 
 M.init = function(opts)
   -- create autocommands for skeleton insertion

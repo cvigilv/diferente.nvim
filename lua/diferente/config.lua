@@ -16,7 +16,7 @@ local defaults = {
   setup_keymaps = true,
 }
 
-M = {}
+local M = {}
 
 ---Update default configuration table by merging with user's configuration table
 ---@param opts Diferente.Config user configuration table
