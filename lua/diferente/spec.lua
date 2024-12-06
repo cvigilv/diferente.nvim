@@ -14,7 +14,7 @@ local get_diff = function()
 
   -- Configure `gitdiff` buffer
   vim.api.nvim_buf_set_name(diff_buf, "DiferenteDiff")
-  vim.bo.syntax = "diff"
+  vim.bo.filetype = "diff"
   vim.bo.buftype = "nofile"
   vim.wo.number = false
   vim.wo.relativenumber = false
@@ -43,7 +43,7 @@ local get_status = function()
 
   -- Configure `gitstatus` buffer
   vim.api.nvim_buf_set_name(status_buf, "DiferenteGitStatus")
-  vim.bo.syntax = "gitstatus"
+  vim.bo.filetype = "gitstatus"
   vim.bo.buftype = "nofile"
   vim.wo.number = false
   vim.wo.relativenumber = false
@@ -71,7 +71,7 @@ local get_log = function()
 
   -- Configure `gitstatus` buffer
   vim.api.nvim_buf_set_name(log_buf, "DiferenteGitLog")
-  vim.bo.syntax = "gitlog"
+  vim.bo.filetype = "gitlog"
   vim.bo.buftype = "nofile"
   vim.wo.number = false
   vim.wo.relativenumber = false
