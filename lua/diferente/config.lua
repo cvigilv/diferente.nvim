@@ -3,7 +3,7 @@
 ---@license MIT
 
 ---@class Diferente.Config
----@field ratio string|number Window split
+---@field ratio number Window split
 ---@field preference string Which mode to launch whenever COMMIT/MERGE_MSG opens
 ---@field create_excmds boolean Create excommands related to diferente.nvim
 ---@field setup_keymaps boolean Setup keymaps related to diferente.nvim
@@ -28,7 +28,7 @@ M.update_config = function(opts)
 
   -- Validate setup
   vim.validate({
-    ratio = { opts.ratio, { "string", "number" } },
+    ratio = { opts.ratio, { "number" } },
     preference = { opts.preference, "string" },
     create_excmds = { opts.create_excmds, "boolean" },
     setup_keymaps = { opts.setup_keymaps, "boolean" },
